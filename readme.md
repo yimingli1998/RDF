@@ -48,12 +48,19 @@ python vis.py
 to see the results.
 
 ##### Train RDF model with basis functions
-For instance, just run
+Generate SDF data for each robot link:
+```sh
+python sample_sdf_points.py 
+```
+It computes the SDF value based on [mesh_to_sdf](https://github.com/marian42/mesh_to_sdf). The sampled points and sdf values are saved in ```data/sdf_points```.
+
+
+Then just run
 ```sh
 python bf_sdf.py --train --n_func 8 --device cuda
 ```
 
-Normally it will take 1~2 minutes to train a model when using 8 basis functions.
+to learn weights of basis functions. Normally it will take 1~2 minutes to train a model when using 8 basis functions.
 
 ##### Evaluation 
 For instance, you can run 
