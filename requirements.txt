@@ -1,0 +1,8 @@
+numpy
+pyyaml
+trimesh
+glob
+mesh_to_sdf
+skimage
+argparse
+pyglet=1.5.0
