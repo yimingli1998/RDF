@@ -130,5 +130,5 @@ def create_arrow(vector,point,vec_length = 0.05,color =[255,0,0]):
     transformation[:3,:3] = rot
     transformation[:3,3] = point
     arrow.apply_transform(transformation)
-    arrow.visual.face_colors = color
+    arrow.visual.face_colors = np.array(color,dtype=object)
     return arrow

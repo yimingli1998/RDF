@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 ##### Run RDF represented with basis functions
 ```sh
-python bf_sdf.py --n_func 8 --device cuda
+python bf_sdf.py --n_func 24 --device cuda
 ```
 
 Given points with size (N,3) and joint configurations (B,7), it will output SDF values (B,N) and gradients w.r.t. both points (analytical, with shape(B,N,3)) and joints (numerical, with shape(B,N,7)). 
@@ -54,7 +54,7 @@ Generate SDF data for each robot link:
 ```sh
 python sample_sdf_points.py 
 ```
-It computes the SDF value based on [mesh_to_sdf](https://github.com/marian42/mesh_to_sdf). The sampled points and sdf values are saved in ```data/sdf_points```.
+It computes the SDF value based on [mesh_to_sdf](https://github.com/marian42/mesh_to_sdf). The sampled points and sdf values are saved in ```data/sdf_points```. You can also download the data [here](https://drive.google.com/file/d/1lsdJzxECFOILhYiCJydOcruKoqB6QiJR/view?usp=sharing). After this, please put the '*.npy' file in ```data/sdf_points/```
 
 
 Then just run
@@ -79,7 +79,7 @@ You can run
 ```sh
 python bbo_planning.py
 ```
-to see how our RDF model can be used for whole arm lifting task with Gauss-Newton algorithm. It will plan 3 valid joint configurations for both arms.
+to see how our RDF model can be used for whole arm lifting task with Gauss-Newton algorithm. It will plan 3 valid joint configurations for both arms.The output picture will be like this:
 
 ##### Train RDF for your own robot
 

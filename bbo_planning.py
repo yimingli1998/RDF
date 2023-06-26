@@ -15,7 +15,7 @@ class BBOPlanner():
         self.theta_max = self.robot.theta_max_soft
         self.theta_min = self.robot.theta_min_soft
         self.bp_sdf = bf_sdf.BPSDF(n_func,domain_min,domain_max,robot,device)
-        self.model = torch.load(f'models/whole_body_sdf_8.pt')
+        self.model = torch.load(f'models/BP_8.pt')
         self.object_mesh = self.load_box_object()
         self.object_internal_points = self.compute_internal_points(num=5,use_surface_points=False)
         self.contact_points = self.compute_contact_points()
@@ -189,13 +189,13 @@ if __name__ == '__main__':
     mid_r = torch.tensor( [ 0.79520689 , 0.37705809, -0.01953359, -1.50133787,  0.14086509,  1.87535585, 1.05259796]).reshape(-1,7).to(device)
  
     # planning for both arm
-    # theta_left = bbo_planner.optimizer(bbo_planner.pose_l,p_l,n_l,mid_l,batch = 64)
-    # theta_right = bbo_planner.optimizer(bbo_planner.pose_r,p_r,n_r,mid_r,batch = 64)
-    # joint_conf = {
-    #     'theta_left':theta_left,
-    #     'theta_right':theta_right
-    # }
-    # torch.save(joint_conf,'joint_conf.pt')
+    theta_left = bbo_planner.optimizer(bbo_planner.pose_l,p_l,n_l,mid_l,batch = 64)
+    theta_right = bbo_planner.optimizer(bbo_planner.pose_r,p_r,n_r,mid_r,batch = 64)
+    joint_conf = {
+        'theta_left':theta_left,
+        'theta_right':theta_right
+    }
+    torch.save(joint_conf,'joint_conf.pt')
 
     # load planned joint conf
     data = torch.load('joint_conf.pt')

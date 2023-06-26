@@ -79,7 +79,7 @@ def plot_3D_panda_with_gradient(pose,theta,bp_sdf,model,device):
     # points
     s = np.random.rand(len(ana_grad),1)
     pts = surface_points + ana_grad*s
-    colors = np.zeros_like(pts)
+    colors = np.zeros_like(pts,dtype=object)
     colors[:,0] = 255
     # pc =trimesh.PointCloud(pts,colors)
     # scene.add_geometry(pc)
