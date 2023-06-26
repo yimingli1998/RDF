@@ -8,8 +8,6 @@
 #### Dependencies
 - Python version: 3.8 (Tested)
 - Pytorch version:1.13.0 (Tested)
-- Install [[Pytorch]] with CUDA support
-
 - Install necessary packages
 
 ```sh
