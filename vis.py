@@ -156,8 +156,6 @@ def vis_panda_sdf(pose, theta,device):
     scene.add_geometry(pc)
     scene.show()
 
-
-
 if __name__ =='__main__':
 
     parser = argparse.ArgumentParser()
@@ -172,7 +170,7 @@ if __name__ =='__main__':
     bp_sdf = bf_sdf.BPSDF(args.n_func,args.domain_min,args.domain_max,panda,args.device)
 
     #  load  model
-    model = torch.load(f'models/whole_body_sdf_{args.n_func}.pt')
+    model = torch.load(f'models/BP_{args.n_func}.pt')
 
     # initial the robot configuration
     theta = torch.tensor([0, -0.3, 0, -2.2, 0, 2.0, np.pi/4]).float().to(args.device).reshape(-1,7)
