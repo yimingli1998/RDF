@@ -1,8 +1,6 @@
 numpy
 pyyaml
 trimesh
-glob
-mesh_to_sdf
-skimage
 argparse
-pyglet=1.5.0
+pyglet==1.5.0
+git+https://github.com/marian42/mesh_to_sdf.git #mesh-to-sdf

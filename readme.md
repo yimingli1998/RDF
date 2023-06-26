@@ -6,7 +6,9 @@
 [[Paper]](...)[[Project]](...)
 
 #### Dependencies
-- Install [[Pytorch>=1.1.0]] with CUDA support
+- Python version: 3.8 (Tested)
+- Pytorch version:1.13.0 (Tested)
+- Install [[Pytorch]] with CUDA support
 
 - Install necessary packages
 

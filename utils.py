@@ -5,7 +5,6 @@ import torch
 import os
 import glob
 import mesh_to_sdf
-from chamfer_distance import ChamferDistance as chamfer_dist
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def transform_points(points, trans,device):
@@ -49,6 +48,7 @@ def print_eval(yhat,y,string='default'):
     return [r.item() for r in res]
 
 def eval_chamfer_distance(tag):
+    from chamfer_distance import ChamferDistance as chamfer_dist
     mesh_path = os.path.join(CUR_DIR,"panda_layer/meshes/voxel_128/*")
     mesh_files = glob.glob(mesh_path)
     mesh_files = sorted(mesh_files)[1:] #except finger
