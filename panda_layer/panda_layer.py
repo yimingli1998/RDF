@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
     # show robot
     pose = torch.from_numpy(np.identity(4)).to(device).reshape(-1, 4, 4).float()
-    theta = torch.tensor([0, -0.3, 0, -2.2, 0, 2.0, np.pi/4]).float().to(device).reshape(-1,7)
+    theta = torch.tensor([0.0, -0.3, 0, 2.2, 0, 2.0, np.pi/4]).float().to(device).reshape(-1,7)
     robot_mesh = panda.get_forward_robot_mesh(pose, theta)
     robot_mesh = np.sum(robot_mesh)
     robot_mesh.show()

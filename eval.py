@@ -93,7 +93,7 @@ if  __name__ =='__main__':
             elif args.method == 'Sphere':
                 pred_sdf, _ = sphere_sdf.get_sdf(x, pose, theta, rs, cs)
             t.append(time.time()-time0)
-        print(f'Method:{args.method}\t Time Cost:{np.mean(t[1:])*1000.}\t')
+        print(f'Method:{args.method}\t Time Cost:{np.mean(t[1:])*1000.}ms\t')
 
     # vis reconstructed robot surface (please make sure you have saved the reconstructed mesh before)
     if args.vis_rec_robot_surface:

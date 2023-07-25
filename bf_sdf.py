@@ -226,7 +226,7 @@ class BPSDF():
         theta = theta.unsqueeze(1)
         d_theta = (theta.expand(B,7,7)+ torch.eye(7,device=self.device).unsqueeze(0).expand(B,7,7)*delta).reshape(B,-1,7)
         theta = torch.cat([theta,d_theta],dim=1).reshape(B*8,7)
-        pose = pose.expand(B*8,4,4)
+        pose = pose.unsqueeze(1).expand(B,8,4,4).reshape(B*8,4,4)
         sdf,_ = self.get_whole_body_sdf_batch(x,pose,theta,model,use_derivative = False, used_links = used_links)
         sdf = sdf.reshape(B,8,-1)
         d_sdf = (sdf[:,1:,:]-sdf[:,:1,:])/delta
@@ -238,7 +238,7 @@ class BPSDF():
         theta = theta.unsqueeze(1)
         d_theta = (theta.expand(B,7,7)+ torch.eye(7,device=self.device).unsqueeze(0).expand(B,7,7)*delta).reshape(B,-1,7)
         theta = torch.cat([theta,d_theta],dim=1).reshape(B*8,7)
-        pose = pose.expand(B*8,4,4)
+        pose = pose.unsqueeze(1).expand(B,8,4,4).reshape(B*8,4,4)
         sdf, normal = self.get_whole_body_sdf_batch(x,pose,theta,model,use_derivative = True, used_links = used_links)
         normal = normal.reshape(B,8,-1,3).transpose(1,2)
         return normal # normal size: (B,N,8,3) normal[:,:,0,:] origin normal vector normal[:,:,1:,:] derivatives with respect to joints
@@ -275,7 +275,7 @@ if __name__ =='__main__':
     
     # run RDF 
     x = torch.rand(128,3).to(args.device)*2.0 - 1.0
-    theta = torch.rand(1,7).to(args.device).float()
+    theta = torch.rand(2,7).to(args.device).float()
     pose = torch.from_numpy(np.identity(4)).unsqueeze(0).to(args.device).expand(len(theta),4,4).float()
     sdf,gradient = bp_sdf.get_whole_body_sdf_batch(x,pose,theta,model,use_derivative=True)
     print('sdf:',sdf.shape,'gradient:',gradient.shape)

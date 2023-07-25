@@ -70,25 +70,30 @@ def plot_3D_panda_with_gradient(pose,theta,bp_sdf,model,device):
     scene = trimesh.Scene() 
     # robot mesh
     scene.add_geometry(robot_mesh)
-    choice = np.random.choice(len(surface_points), 256, replace=False)
+    choice = np.random.choice(len(surface_points), 1024, replace=False)
     surface_points = surface_points[choice]
     p =torch.from_numpy(surface_points).float().to(device)
+    ball_query = trimesh.creation.uv_sphere(1).vertices
+    choice_ball = np.random.choice(len(ball_query), 1024, replace=False)
+    ball_query = ball_query[choice_ball]
+    p = p + torch.from_numpy(ball_query).float().to(device)*0.5
     sdf,ana_grad = bp_sdf.get_whole_body_sdf_batch(p,pose,theta,model,use_derivative=True,used_links = [0,1,2,3,4,5,6,7,8])
     sdf,ana_grad = sdf.squeeze().detach().cpu().numpy(),ana_grad.squeeze().detach().cpu().numpy()
-    
     # points
-    s = np.random.rand(len(ana_grad),1)
-    pts = surface_points + ana_grad*s
+    pts = p.detach().cpu().numpy()
     colors = np.zeros_like(pts,dtype=object)
-    colors[:,0] = 255
+    colors[:,0] = np.abs(sdf)*400
     # pc =trimesh.PointCloud(pts,colors)
     # scene.add_geometry(pc)
 
     # gradients
     for i in range(len(pts)):
         dg = ana_grad[i]
-        s_i = s[i]
-        m = utils.create_arrow(-dg,pts[i],vec_length = 0.05,color=[255,255*s_i,0])
+        if dg.sum() ==0:
+            continue
+        c = colors[i]
+        print(c)
+        m = utils.create_arrow(-dg,pts[i],vec_length = 0.05,color=c)
         scene.add_geometry(m)
     scene.show()   
 
@@ -176,8 +181,8 @@ if __name__ =='__main__':
     theta = torch.tensor([0, -0.3, 0, -2.2, 0, 2.0, np.pi/4]).float().to(args.device).reshape(-1,7)
     pose = torch.from_numpy(np.identity(4)).unsqueeze(0).to(args.device).expand(len(theta),4,4).float()
 
-    # vis 2D SDF with gradient
-    plot_2D_panda_sdf(pose,theta,bp_sdf,nbData=80,model=model,device=args.device)
+    # # vis 2D SDF with gradient
+    # plot_2D_panda_sdf(pose,theta,bp_sdf,nbData=80,model=model,device=args.device)
 
     # vis 3D SDF with gradient
     plot_3D_panda_with_gradient(pose,theta,bp_sdf,model=model,device=args.device)
