@@ -87,3 +87,7 @@ to see how our RDF model can be used for whole arm lifting task with Gauss-Newto
 
 - Use it!
 
+
+RDF is maintained by Yiming LI
+Copyright (c) 2023 Idiap Research Institute, https://idiap.ch/
+RDF is licensed under the MIT License.
