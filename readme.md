@@ -3,7 +3,9 @@
 
 ### Code for paper "Learning Robot Geometry as Distance Fields: Applications to Whole-body Manipulation"
 
-[[Paper]](...)[[Project]](...)
+[[Paper]](https://arxiv.org/pdf/2307.00533.pdf)[[Project]](https://sites.google.com/view/lrdf)
+
+<img src='robot_sdf.gif'/>
 
 #### Dependencies
 - Python version: 3.8 (Tested)
