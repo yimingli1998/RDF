@@ -85,10 +85,11 @@ to see how our RDF model can be used for whole arm lifting task with Gauss-Newto
 
 - Build a differentiable robot layer for forward kinematics (see ```panda_layer/panda_layer.py``` for details)
 
-- Train RDF model using basis functions 
+- Train RDF model using basis functions (We use .stl file for SDF computation and reconstruction, which can be found in the URDF file)
 
 - Use it!
 
+Note: Another option is to use the pytorch kinematics library to parse the urdf file automatically to build RDF for your own robot: https://github.com/UM-ARM-Lab/pytorch_kinematics
 
 RDF is maintained by Yiming LI and licensed under the MIT License.
 
