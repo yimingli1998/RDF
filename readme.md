@@ -93,4 +93,4 @@ Note: Another option is to use the pytorch kinematics library to parse the urdf 
 
 RDF is maintained by Yiming LI and licensed under the MIT License.
 
-Copyright (c) 2023 Idiap Research Institute, https://idiap.ch/
+Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
