@@ -1,3 +1,8 @@
+# -----------------------------------------------------------------------------
+# This file is part of the RDF project.
+# Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
+# Contributor: Yimming Li <yiming.li@idiap.ch>
+# -----------------------------------------------------------------------------
 
 import torch
 import trimesh
@@ -18,7 +23,7 @@ def save_to_mesh(vertices, faces, output_mesh_path=None):
 
 class PandaLayer(torch.nn.Module):
     def __init__(self, device='cpu',mesh_path = os.path.dirname(os.path.realpath(__file__)) + "/meshes/visual/*.stl"):
-        # The forward kinematics equations implemented here are from
+        # The forward kinematics equations implemented here are     robot_mesh.show()from
         super().__init__()
         dir_path = os.path.split(os.path.abspath(__file__))[0]
         self.device = device
@@ -110,7 +115,10 @@ class PandaLayer(torch.nn.Module):
         meshes = {}
 
         for mesh_file in mesh_files:
-            name = os.path.basename(mesh_file)[:-4].split('_')[0]
+            if self.mesh_path.split('/')[-2]=='visual':
+                name = os.path.basename(mesh_file)[:-4].split('_')[0]
+            else:
+                name = os.path.basename(mesh_file)[:-4]
             mesh = trimesh.load(mesh_file)
             triangle_areas = trimesh.triangles.area(mesh.triangles)
             vert_area_weight = []
@@ -130,8 +138,9 @@ class PandaLayer(torch.nn.Module):
         return meshes
 
     def forward(self, pose, theta):
-        batch_size = pose.shape[0]
+        batch_size = theta.shape[0]
         link0_vertices = self.link0.repeat(batch_size, 1, 1)
+        # print(link0_vertices.shape)
         link0_vertices = torch.matmul(pose,
                                       link0_vertices.transpose(2, 1)).transpose(1, 2)[:, :, :3]
         link0_normals = self.link0_normals.repeat(batch_size, 1, 1)
@@ -163,7 +172,7 @@ class PandaLayer(torch.nn.Module):
                                       0, theta[:, 6], batch_size).float()
         link8_vertices = self.link8.repeat(batch_size, 1, 1)
         T78 = self.forward_kinematics(self.A7, torch.tensor(0, dtype=torch.float32, device=self.device),
-                                      0.107, torch.tensor(-np.pi/4, dtype=torch.float32, device=self.device), batch_size).float()
+                                      0.107, -np.pi/4*torch.ones_like(theta[:,0],device=self.device), batch_size).float()
         # finger_vertices = self.finger.repeat(batch_size, 1, 1)
 
         pose_to_Tw0 = pose
@@ -240,7 +249,7 @@ class PandaLayer(torch.nn.Module):
                 link6_normals, link7_normals, link8_normals]
 
     def get_transformations_each_link(self,pose, theta):
-        batch_size = pose.shape[0]
+        batch_size = theta.shape[0]
         T01 = self.forward_kinematics(self.A0, torch.tensor(0, dtype=torch.float32, device=self.device),
                                       0.333, theta[:, 0], batch_size).float()
 
@@ -264,7 +273,7 @@ class PandaLayer(torch.nn.Module):
                                       0, theta[:, 6], batch_size).float()
         # link8_vertices = self.link8.repeat(batch_size, 1, 1)
         T78 = self.forward_kinematics(self.A7, torch.tensor(0, dtype=torch.float32, device=self.device),
-                                      0.107, torch.tensor(-np.pi/4, dtype=torch.float32, device=self.device), batch_size).float()
+                                      0.107, -np.pi/4*torch.ones_like(theta[:,0],device=self.device), batch_size).float()
         # finger_vertices = self.finger.repeat(batch_size, 1, 1)
         pose_to_Tw0 = pose
         pose_to_T01 = torch.matmul(pose_to_Tw0, T01)
@@ -278,24 +287,37 @@ class PandaLayer(torch.nn.Module):
 
         return [pose_to_Tw0,pose_to_T01,pose_to_T12,pose_to_T23,pose_to_T34,pose_to_T45,pose_to_T56,pose_to_T67,pose_to_T78]
 
+    def get_eef(self,pose, theta,link=-1):
+        poses = self.get_transformations_each_link(pose, theta)
+        pos = poses[link][:, :3, 3]
+        rot = poses[link][:, :3, :3]
+        return  pos, rot
+
     def forward_kinematics(self, A, alpha, D, theta, batch_size=1):
+        theta = theta.view(batch_size, -1)
+        alpha = alpha*torch.ones_like(theta)
         c_theta = torch.cos(theta)
         s_theta = torch.sin(theta)
         c_alpha = torch.cos(alpha)
         s_alpha = torch.sin(alpha)
-        l_1_to_l = torch.zeros((batch_size, 4, 4), device=self.device)
-        l_1_to_l[:, 0, 0] = c_theta
-        l_1_to_l[:, 0, 1] = -s_theta
-        l_1_to_l[:, 0, 3] = A
-        l_1_to_l[:, 1, 0] = s_theta * c_alpha
-        l_1_to_l[:, 1, 1] = c_theta * c_alpha
-        l_1_to_l[:, 1, 2] = -s_alpha
-        l_1_to_l[:, 1, 3] = -s_alpha * D
-        l_1_to_l[:, 2, 0] = s_theta * s_alpha
-        l_1_to_l[:, 2, 1] = c_theta * s_alpha
-        l_1_to_l[:, 2, 2] = c_alpha
-        l_1_to_l[:, 2, 3] = c_alpha * D
-        l_1_to_l[:, 3, 3] = 1
+
+        l_1_to_l = torch.cat([c_theta, -s_theta, torch.zeros_like(s_theta), A * torch.ones_like(c_theta),
+                                s_theta * c_alpha, c_theta * c_alpha, -s_alpha, -s_alpha * D,
+                                s_theta * s_alpha, c_theta * s_alpha, c_alpha, c_alpha * D,
+                                torch.zeros_like(s_theta), torch.zeros_like(s_theta), torch.zeros_like(s_theta), torch.ones_like(s_theta)], dim=1).reshape(batch_size, 4, 4)
+        # l_1_to_l = torch.zeros((batch_size, 4, 4), device=self.device)
+        # l_1_to_l[:, 0, 0] = c_theta
+        # l_1_to_l[:, 0, 1] = -s_theta
+        # l_1_to_l[:, 0, 3] = A
+        # l_1_to_l[:, 1, 0] = s_theta * c_alpha
+        # l_1_to_l[:, 1, 1] = c_theta * c_alpha
+        # l_1_to_l[:, 1, 2] = -s_alpha
+        # l_1_to_l[:, 1, 3] = -s_alpha * D
+        # l_1_to_l[:, 2, 0] = s_theta * s_alpha
+        # l_1_to_l[:, 2, 1] = c_theta * s_alpha
+        # l_1_to_l[:, 2, 2] = c_alpha
+        # l_1_to_l[:, 2, 3] = c_alpha * D
+        # l_1_to_l[:, 3, 3] = 1
         return l_1_to_l
 
     def get_robot_mesh(self, vertices_list, faces):
@@ -374,8 +396,8 @@ class PandaLayer(torch.nn.Module):
                           outputs[6][i].detach().cpu().numpy(),
                           outputs[7][i].detach().cpu().numpy(),
                           outputs[8][i].detach().cpu().numpy()] for i in range(batch_size)]
+        
         mesh = [self.get_robot_mesh(vertices, self.robot_faces) for vertices in vertices_list]
-
         return mesh
 
     def get_forward_vertices(self, pose, theta):
@@ -414,8 +436,11 @@ if __name__ == "__main__":
     scene = trimesh.Scene()
 
     # show robot
-    pose = torch.from_numpy(np.identity(4)).to(device).reshape(-1, 4, 4).float()
-    theta = torch.tensor([0.0, -0.3, 0, 2.2, 0, 2.0, np.pi/4]).float().to(device).reshape(-1,7)
+    # theta = panda.theta_min + (panda.theta_max-panda.theta_min)*0.5
+    # theta = torch.tensor([0, 0.8, -0.0, -2.3, -2.8, 1.5, np.pi/4.0]).float().to(device).reshape(-1,7)
+    theta = torch.rand(1,7).float().to(device)
+    pose = torch.from_numpy(np.identity(4)).to(device).reshape(-1, 4, 4).expand(len(theta),-1,-1).float()
     robot_mesh = panda.get_forward_robot_mesh(pose, theta)
     robot_mesh = np.sum(robot_mesh)
+    trimesh.exchange.export.export_mesh(robot_mesh, os.path.join('output_meshes',f"whole_body_levelset_0.stl"))
     robot_mesh.show()

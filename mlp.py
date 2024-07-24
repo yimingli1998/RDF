@@ -1,3 +1,9 @@
+# -----------------------------------------------------------------------------
+# This file is part of the RDF project.
+# Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
+# Contributor: Yimming Li <yiming.li@idiap.ch>
+# -----------------------------------------------------------------------------
+
 import torch
 from torch import nn
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, ReLU6, ELU, Dropout, BatchNorm1d as BN, LayerNorm as LN, Tanh
