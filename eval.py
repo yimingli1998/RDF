@@ -1,4 +1,6 @@
+
 # -----------------------------------------------------------------------------
+# SPDX-License-Identifier: MIT
 # This file is part of the RDF project.
 # Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
 # Contributor: Yimming Li <yiming.li@idiap.ch>

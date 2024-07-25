@@ -1,3 +1,4 @@
+
 # -----------------------------------------------------------------------------
 # This file is part of the RDF project.
 # Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
