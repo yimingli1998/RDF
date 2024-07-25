@@ -92,5 +92,5 @@ to see how our RDF model can be used for whole arm lifting task with Gauss-Newto
 Note: Another option is to use the pytorch kinematics library to parse the urdf file automatically to build RDF for your own robot: https://github.com/UM-ARM-Lab/pytorch_kinematics
 
 RDF is maintained by Yiming LI and licensed under the MIT License.
-
+The urdf file we used is licensed under the Apache License.
 Copyright (c) 2023 Idiap Research Institute <contact@idiap.ch>
