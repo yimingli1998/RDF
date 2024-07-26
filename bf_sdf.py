@@ -164,7 +164,7 @@ class BPSDF():
                     os.mkdir(save_path)
                 trimesh.exchange.export.export_mesh(rec_mesh, os.path.join(save_path,f"{save_mesh_name}_{mesh_name}.stl"))
 
-    def get_whole_body_sdf_batch(self,x,pose,theta,model,use_derivative = True, used_links = [0,1,2,3,4,5,6,7,8]):
+    def get_whole_body_sdf_batch(self,x,pose,theta,model,use_derivative = True, used_links = [0,1,2,3,4,5,6,7,8],return_index=False):
 
         B = len(theta)
         N = len(x)
@@ -194,6 +194,8 @@ class BPSDF():
             sdf = sdf.reshape(B,K,N)
             sdf = sdf*scale.reshape(B,K).unsqueeze(-1)
             sdf_value, idx = sdf.min(dim=1)
+            if return_index:
+                return sdf_value, None, idx
             return sdf_value, None
         else:   
             phi,dphi = self.build_basis_function_from_points(x_bounded.reshape(B*K*N,3), use_derivative=True)
@@ -221,9 +223,11 @@ class BPSDF():
             # exit()
             # print(norm_gradient_base_frame)
 
-            idx = idx.unsqueeze(1).unsqueeze(-1).expand(B,K,N,3)
-            gradient_value = torch.gather(gradient_base_frame,1,idx)[:,0,:,:]
+            idx_grad = idx.unsqueeze(1).unsqueeze(-1).expand(B,K,N,3)
+            gradient_value = torch.gather(gradient_base_frame,1,idx_grad)[:,0,:,:]
             # gradient_value = None
+            if return_index:
+                return sdf_value, gradient_value, idx
             return sdf_value, gradient_value
 
     def get_whole_body_sdf_with_joints_grad_batch(self,x,pose,theta,model,used_links = [0,1,2,3,4,5,6,7,8]):
